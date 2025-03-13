@@ -19,7 +19,8 @@
     const buttonStyles = {
       position: 'fixed',
       top: '10px',
-      left: '10px',
+      left: '50%',
+      transform: 'translateX(-50%)',
       zIndex: '2147483647',
       backgroundColor: '#0f9d58',
       color: 'white',
@@ -69,34 +70,17 @@
         if (filename.length > 50) filename = filename.substring(0, 50);
         filename += '.md';
         
-        // Blobの作成
-        const blob = new Blob([markdown], { type: 'text/markdown' });
-        const url = URL.createObjectURL(blob);
+        // ダウンロード処理
+        downloadFile(markdown, filename, 'text/markdown');
         
-        // ダウンロードリンク作成
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        a.style.display = 'none';
-        
-        // リンクをクリックしてダウンロード
-        document.body.appendChild(a);
-        a.click();
-        
-        // クリーンアップ
-        setTimeout(function() {
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        }, 100);
-        
-        // テキストコンテンツを安全に設定
+        // 通知表示
         notification.textContent = 'MDをダウンロードしました';
         notification.style.display = 'block';
         setTimeout(function() {
           notification.style.display = 'none';
         }, 3000);
       } catch (error) {
-        // エラー処理 - テキストコンテンツを安全に設定
+        // エラー処理
         notification.textContent = 'エラー: ' + error.message;
         notification.style.backgroundColor = '#f44336';
         notification.style.display = 'block';
@@ -107,14 +91,43 @@
       }
     });
     
-    try {
-      // ボタンと通知をページに追加
-      document.body.appendChild(button);
-      document.body.appendChild(notification);
-      console.log('MD保存ボタンを追加しました');
-    } catch (error) {
-      console.error('ボタン追加エラー:', error);
+    // ボタンと通知をページに追加
+    document.body.appendChild(button);
+    document.body.appendChild(notification);
+    console.log('MD保存ボタンを追加しました');
+  }
+  
+  // ファイルダウンロード関数
+  function downloadFile(content, filename, contentType) {
+    // Blobの作成
+    const blob = new Blob([content], { type: contentType });
+    
+    // ダウンロードリンク作成
+    const a = document.createElement('a');
+    a.download = filename;
+    
+    // IE11対応
+    if (window.navigator.msSaveBlob) {
+      window.navigator.msSaveBlob(blob, filename);
+      return;
     }
+    
+    // モダンブラウザ対応
+    const url = URL.createObjectURL(blob);
+    a.href = url;
+    
+    // 不可視要素としてDOMに追加
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    
+    // クリックをトリガー
+    a.click();
+    
+    // クリーンアップ
+    setTimeout(function() {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
   }
   
   // マークダウン生成関数
