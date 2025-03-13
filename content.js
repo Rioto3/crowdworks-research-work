@@ -1,11 +1,7 @@
 // 即時実行
 (function() {
-  // ボタン追加開始
-  addDownloadButton();
-  
-  // 遅延追加のバックアップとして
+  // ボタン追加
   setTimeout(addDownloadButton, 1000);
-  setTimeout(addDownloadButton, 3000);
 
   // ボタン追加関数
   function addDownloadButton() {
@@ -93,26 +89,14 @@
           URL.revokeObjectURL(url);
         }, 100);
         
-        // 通知表示
+        // テキストコンテンツを安全に設定
         notification.textContent = 'MDをダウンロードしました';
         notification.style.display = 'block';
         setTimeout(function() {
           notification.style.display = 'none';
         }, 3000);
-        
-        // ストレージにも保存（オプション）
-        browser.runtime.sendMessage({
-          action: 'saveHTML',
-          pageData: {
-            title: document.title,
-            url: window.location.href,
-            html: document.documentElement.outerHTML,
-            markdown: markdown,
-            timestamp: new Date().toISOString()
-          }
-        });
       } catch (error) {
-        // エラー処理
+        // エラー処理 - テキストコンテンツを安全に設定
         notification.textContent = 'エラー: ' + error.message;
         notification.style.backgroundColor = '#f44336';
         notification.style.display = 'block';
@@ -135,45 +119,15 @@
   
   // マークダウン生成関数
   function generateMarkdown() {
-    const pageTitle = document.title;
-    let content = '';
+    const jobTitle = document.querySelector('h1')?.textContent.trim() || document.title;
+    const category = document.querySelector('.subtitle a')?.textContent.trim() || '';
+    const jobDetails = document.querySelector('.job_offer_detail_table td')?.textContent.trim() || '';
+    const budget = document.querySelector('.fixed_price_budget')?.textContent.trim() || '';
     
-    // CrowdWorksの仕事ページ
-    if (window.location.href.includes('crowdworks.jp/public/jobs/')) {
-      const jobTitle = document.querySelector('h1')?.textContent.trim() || pageTitle;
-      const category = document.querySelector('.subtitle a')?.textContent.trim() || '';
-      const jobDetails = document.querySelector('.job_offer_detail_table td')?.textContent.trim() || '';
-      const budget = document.querySelector('.fixed_price_budget')?.textContent.trim() || '';
-      
-      content = `# ${jobTitle}\n\n` +
-                `## カテゴリー\n${category}\n\n` +
-                `## 予算\n${budget}\n\n` +
-                `## 詳細\n${jobDetails}\n\n` +
-                `## URL\n${window.location.href}`;
-    } else {
-      // 一般ページ
-      content = `# ${pageTitle}\n\n` +
-                `## URL\n${window.location.href}\n\n` +
-                `## コンテンツ\n`;
-      
-      // コンテンツ取得
-      const mainContent = document.querySelector('article') || 
-                          document.querySelector('main') || 
-                          document.querySelector('.content') || 
-                          document.querySelector('#content');
-      
-      if (mainContent) {
-        content += mainContent.textContent.trim()
-          .replace(/\n{3,}/g, '\n\n')
-          .replace(/\t/g, '  ');
-      } else {
-        content += document.body.textContent.trim()
-          .replace(/\n{3,}/g, '\n\n')
-          .replace(/\t/g, '  ')
-          .substring(0, 5000);
-      }
-    }
-    
-    return content;
+    return `# ${jobTitle}\n\n` +
+           `## カテゴリー\n${category}\n\n` +
+           `## 予算\n${budget}\n\n` +
+           `## 詳細\n${jobDetails}\n\n` +
+           `## URL\n${window.location.href}`;
   }
 })();
