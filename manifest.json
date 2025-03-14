@@ -3,7 +3,10 @@
   "name": "CrowdWorks MD保存",
   "version": "1.0",
   "description": "CrowdWorksのページをMarkdownで即時ダウンロード",
-  "permissions": ["tabs"],
+  "permissions": ["tabs", "downloads", "<all_urls>"],
+  "background": {
+    "scripts": ["background.js"]
+  },
   "content_scripts": [
     {
       "matches": ["*://*.crowdworks.jp/*"],
