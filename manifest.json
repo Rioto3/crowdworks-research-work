@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "CrowdWorks MD保存",
-  "version": "1.0",
-  "description": "CrowdWorksのページをMarkdownで即時ダウンロード",
+  "version": "1.1",
+  "description": "ChatGPTやClaudeで使用できるように情報を整理。",
   "permissions": ["tabs", "downloads", "<all_urls>"],
   "background": {
     "scripts": ["background.js"]
